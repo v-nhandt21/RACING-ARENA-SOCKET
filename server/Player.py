@@ -18,9 +18,3 @@ class Player:
 
      def check_answer(a, b, operation, answer):
           a = 0
-
-     def check_nickname():
-          a = 0
-          # a -> z , A -> Z, 0 -> 9 , _
-          # Len <= 10
-          # Check duplicate

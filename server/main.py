@@ -17,7 +17,11 @@ print('Waitiing for a Connection..')
 ServerSocket.listen(2)
 
 PlayerList = []
-MaxPlayer = 1
+MaxPlayer = 2
+
+          # a -> z , A -> Z, 0 -> 9 , _
+          # Len <= 10
+          # Check duplicate
 
 def login_client(connection, ip, port):
      connection.send(str.encode('Welcome to the Server'))
@@ -25,8 +29,13 @@ def login_client(connection, ip, port):
 
           data = connection.recv(2048)
           # check duplicate
-          nickname = data.decode('utf-8')
           regis = True
+          nickname = data.decode('utf-8')
+          for char in nickname:
+               if char.isalnum() == False and char != '_':
+                    reply = 'Invalid character. Type nickname again: '
+                    regis = False
+                    break
           if PlayerList != []:
                for player in PlayerList:
                     if player.nickname == nickname:
@@ -36,7 +45,7 @@ def login_client(connection, ip, port):
           if regis == True:
                reply = 'Registration completed successfully'
           else:
-               reply = 'Choose another nickname'
+               reply = 'Choose another nickname: '
 
           if not data:
                break
