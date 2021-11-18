@@ -3,6 +3,7 @@ import os
 from Player import Player
 from _thread import *
 import random
+import operator
 
 ServerSocket = socket.socket()
 host = '127.0.0.3'
@@ -19,34 +20,52 @@ ServerSocket.listen(2)
 PlayerList = []
 MaxPlayer = 2
 
-          # a -> z , A -> Z, 0 -> 9 , _
-          # Len <= 10
-          # Check duplicate
+ops = ops = {
+    "+": operator.add,
+    "-": operator.sub,
+    "*": operator.mul,
+    "/": operator.truediv,
+    "%": operator.mod
+}
+
+def operation(i):
+     switcher={
+                0:'+',
+                1:'-',
+                2:'*',
+                3:'/',
+                4:'%',
+               }
+     return switcher.get(i)   
 
 def login_client(connection, ip, port):
      connection.send(str.encode('Welcome to the Server'))
      while True:
 
           data = connection.recv(2048)
-          # check duplicate
-          regis = True
           nickname = data.decode('utf-8')
-          for char in nickname:
-               if char.isalnum() == False and char != '_':
-                    reply = 'Invalid character. Type nickname again: '
-                    regis = False
-                    break
-          if PlayerList != []:
-               for player in PlayerList:
-                    if player.nickname == nickname:
-                         regis = False
-                         break
+          
+          regis = False
+          # check nickname
+          while regis == False:
+               for char in nickname:
+                    if (char.isalnum() == False and char != '_') or len(nickname) > 10:
+                         reply = 'Invalid character. Type nickname again: '
+                         data = connection.recv(2048)
+                         nickname = data.decode('utf-8')
+                         
+               # check duplicate               
+               if PlayerList != []:
+                    for player in PlayerList:
+                         if player.nickname == nickname:
+                              regis = False
+                         else:
+                              PlayerList.append(nickname)
+                              break
           
           if regis == True:
                reply = 'Registration completed successfully'
-          else:
-               reply = 'Choose another nickname: '
-
+               
           if not data:
                break
           connection.sendall(str.encode(reply))
@@ -76,19 +95,21 @@ while True:
                break
 
      # Race Lenght generate:
-     race_lenght = input('Input length of the race: ')
+     race_length = input('Input length of the race: ')
 
      while True:
           # Question generate:
           a = random.randint(-10000,10000)
           b = random.randint(-10000,10000)
-          operator = random.randrange(6)
+          operator = random.randrange(5)
+          ops_char = operation(operator)
+          ops_func = ops[ops_char]
 
           # Send question
-          print(str.encode(  str(a) + str(operator)  + str(b)  ))
+          print(str.encode(  str(a) + ops_char  + str(b)  ))
 
           for player in PlayerList:
-               player.connection.sendall(str.encode(  str(a) + str(operator)  + str(b)  ))
+               player.connection.sendall(str.encode(  str(a) + ops_char  + str(b)  ))
 
           fastest = -1
 
@@ -97,10 +118,19 @@ while True:
                player.answer = int( player.connection.recv(2048) )
 
           # check answer
+          result = ops_func(a, b)
           for player in PlayerList:
-               print(player.answer)
-
-          # check status user 
+               if player.answer == result:
+                    player.answer += 1
+               elif player.check3 < 3:
+                    if player.position != 1:
+                         player.position -= 1
+                    player.check3 += 1
+                    
+          # check status user
+          for player in PlayerList:
+               if player.check3 == 3:
+                    PlayerList.remove(player) 
 
           # notification -> update infor
 
