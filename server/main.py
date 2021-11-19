@@ -1,9 +1,13 @@
 import socket
 import os
-from Player import Player
 from _thread import *
 import random
 import operator
+import pickle
+
+from Player import Player
+from Message import Message
+
 
 ServerSocket = socket.socket()
 host = '127.0.0.3'
@@ -18,7 +22,7 @@ print('Waitiing for a Connection..')
 ServerSocket.listen(2)
 
 PlayerList = []
-MaxPlayer = 2
+MaxPlayer = 3
 
 ops = ops = {
     "+": operator.add,
@@ -30,11 +34,11 @@ ops = ops = {
 
 def operation(i):
      switcher={
-                0:'+',
-                1:'-',
-                2:'*',
-                3:'/',
-                4:'%',
+               0:'+',
+               1:'-',
+               2:'*',
+               3:'/',
+               4:'%',
                }
      return switcher.get(i)   
 
@@ -117,21 +121,39 @@ while True:
           for player in PlayerList:
                player.answer = int( player.connection.recv(2048) )
 
+          WinGame = False
           # check answer
           result = ops_func(a, b)
+
+          # Update status
           for player in PlayerList:
-               if player.answer == result:
-                    player.answer += 1
-               elif player.check3 < 3:
-                    if player.position != 1:
-                         player.position -= 1
-                    player.check3 += 1
-                    
-          # check status user
-          for player in PlayerList:
-               if player.check3 == 3:
-                    PlayerList.remove(player) 
+               correct = player.update_status(result, race_length)
+
+               if correct:
+                    player.connection.sendall(str.encode(  "Correct Answer"  ))
+               else:
+                    player.connection.sendall(str.encode(  "Wrong Answer"  ))
+
+               if not player.alive():
+                    player.connection.sendall(str.encode(  "You were disqualified for having an accident 3 times in a row"  ))
+               
+               if player.win():
+                    WinGame = True
+
+          # Update alive
+          PlayerList[:] = [ player for player in PlayerList if player.alive]
 
           # notification -> update infor
+          if PlayerList == []:
+               for player in PlayerList:
+                    player.connection.sendall(str.encode(  "End game with no winner"  ))
+               break # Newgame
+          if WinGame:
+               for player in PlayerList:
+                    if player.win():
+                         player.connection.sendall(str.encode(  "You win the game"  ))
+                    else:
+                         player.connection.sendall(str.encode(  "You lose the game"  ))
+               break # Newgame
 
 ServerSocket.close()
