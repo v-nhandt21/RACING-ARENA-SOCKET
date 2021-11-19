@@ -170,24 +170,20 @@ while True:
           for player in PlayerList:
                player.info()
                if player.correct:
-                    player.connection.sendall(str.encode(  "Correct Answer"  ))
+                    player.connection.sendall( pickle.dumps(Message("Correct Answer", player.position, player.race, player.correct)) )
                else:
-                    player.connection.sendall(str.encode(  "Wrong Answer"  ))
+                    player.connection.sendall( pickle.dumps(Message("Wrong Answer", player.position, player.race, player.correct)) )
 
-          if not player.alive():
-               player.connection.sendall(str.encode(  "You were disqualified for having an accident 3 times in a row"  ))
-          
-          if player.win():
-               WinGame = True
+               if not player.alive():
+                    player.connection.sendall(str.encode(  "You were disqualified for having an accident 3 times in a row"  ))
+               
+               if player.win():
+                    WinGame = True
 
           # Update alive
           PlayerList[:] = [ player for player in PlayerList if player.alive]
 
           # notification -> update infor
-          if PlayerList == []:
-               for player in PlayerList:
-                    player.connection.sendall(str.encode(  "End game with no winner"  ))
-               break # Newgame
           if WinGame:
                for player in PlayerList:
                     if player.win():
@@ -195,5 +191,12 @@ while True:
                     else:
                          player.connection.sendall(str.encode(  "You lose the game"  ))
                break # Newgame
+          elif len(PlayerList) == 0:
+               for player in PlayerList:
+                    player.connection.sendall(str.encode(  "End game with no winner"  ))
+               break # Newgame
+          elif len(PlayerList) == 1:
+               PlayerList[0].connection.sendall(str.encode(  "You win the game"  ))
+               break
 
 ServerSocket.close()
