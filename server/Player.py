@@ -1,5 +1,5 @@
 class Player:
-     def __init__(self, connection, ip, port, nickname):
+     def __init__(self, connection, ip, port, nickname, color):
           self.connection = connection
           self.ip = ip
           self.port = port
@@ -10,13 +10,10 @@ class Player:
           self.answer = None
           self.win = False
           self.timer = 0
-          self.color = 0
+          self.color = color
           self.correct = False
 
      def info(self):
-          print("connection" ,self.connection)
-          print("IP", self.ip)
-          print(self.port)
           print(self.position)
           print(self.nickname)
           print("Alive: ", self.alive)
