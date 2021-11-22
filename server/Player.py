@@ -47,7 +47,7 @@ class Player:
                return False
 
      def check_win(self, race):
-          if self.postion >= race:
+          if self.position >= race:
                return True
           else:
                return False

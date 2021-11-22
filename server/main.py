@@ -18,7 +18,7 @@ ops = ops = {
      "+": operator.add,
      "-": operator.sub,
      "*": operator.mul,
-     "/": operator.truediv,
+     "/": operator.floordiv,
      "%": operator.mod
 }
 
@@ -126,7 +126,7 @@ def Game_Server(port = 1123, host = ''):
                     break
 
           while True:
-               MaxTime = int(input('-> Input max time (from 10 to 15 players): '))
+               MaxTime = int(input('-> Input max time (from 10 to 15 seconds): '))
                if MaxTime >= 10 and MaxTime <=15:
                     break
 
@@ -178,8 +178,11 @@ def Game_Server(port = 1123, host = ''):
                ROUND = 0
                # Question generate:
                a = random.randint(-10000,10000)
-               b = random.randint(-10000,10000)
                operator = random.randrange(5)
+               if operation == 3 or operation == 4:
+                    random.choice([i for i in range (-10000, 10001) if i not in [0]])
+               else:
+                    b = random.randint(-10000,10000)               
                ops_char = operation(operator)
                ops_func = ops[ops_char]
 
