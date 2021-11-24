@@ -14,15 +14,16 @@ class Player:
           self.correct = False
 
      def info(self):
-          print(self.position)
-          print(self.nickname)
-          print("Alive: ", self.alive)
-          print(self.check3fail)
-          print(self.answer)
-          print(self.win)
-          print(self.timer)
-          print(self.color)
-          print(self.correct)
+          print("*****************************")
+          print("Position: ",self.position)
+          print("Nickname: ",self.nickname)
+          # print("Alive: ", self.alive)
+          print("Wrong 3 times: ",self.check3fail)
+          # print(self.answer)
+          print("Winner: ",self.win)
+          # print(self.timer)
+          # print(self.color)
+          print("Correct: ",self.correct)
           print("*****************************")
 
      def update_status(self, result, race):
@@ -30,6 +31,7 @@ class Player:
                self.position += 1
                self.check3fail = 0
                if self.check_win(race):
+                    self.position = 100
                     self.win = True
                self.correct = True
           else:
@@ -47,7 +49,7 @@ class Player:
                return False
 
      def check_win(self, race):
-          if self.position >= race:
+          if self.position > race:
                return True
           else:
                return False
