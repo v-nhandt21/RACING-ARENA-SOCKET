@@ -39,7 +39,7 @@ class Player:
                     self.position -= 1
                self.check3fail += 1
                if self.check_consecutive_wrong():
-                    self.alive =False
+                    self.position = -100
                self.correct = False
 
      def check_consecutive_wrong(self):

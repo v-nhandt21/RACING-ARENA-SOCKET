@@ -45,9 +45,10 @@ def login_client(connection, ip, port):
 
           data = connection.recv(1020)
           nickname = data.decode('utf-8')
+          print("Receive Player nickname: ",nickname)
 
           regis = True
-          
+
           if len(nickname) > 10:
                regis = False
                reply = 'Nickname should be shorter than 10 characters'
@@ -65,8 +66,6 @@ def login_client(connection, ip, port):
                          regis = False
                          reply = "Nickname existed"
                          break
-          if regis == True:          
-               print("Receive Player nickname: ",nickname)
           
           if regis == True:
                reply = 'ok_' + str(len(PlayerList))
@@ -93,11 +92,8 @@ def play_round(connection, player, a, b, ops_char, idx):
      player.answer = int(answer)
 
      player.timer = time.time() - player.timer
-     print("here")
      PlayerList[idx] = player
-     print("here 1")
      ROUND += 1
-     print("here 2")
 
 def init_game(connection, race):
      global ROUND
@@ -164,7 +160,7 @@ def Game_Server(port = 1123, host = ''):
           # Race Lenght generate:
           race_length = input('Input length of the race: ')
           while not (race_length.isnumeric() and int(race_length)>3 and int(race_length)<26):
-               race_length = input('Input length of the race again (3 < race < 26): ')
+               race_length = input('Input length of the race again (3<race<26): ')
           race_length = int(race_length)
 
           for idx, player in enumerate(PlayerList):
@@ -176,24 +172,32 @@ def Game_Server(port = 1123, host = ''):
                time.sleep(0.5)
 
           while True:
+               print(">"*40)
+
+               Alive = 0
                ROUND = 0
                # Question generate:
                a = random.randint(-10,10)
-               b = random.randint(-10,10)
                operator = random.randrange(5)
                if operation == 3 or operation == 4:
-                    while b == 0:
-                         b = random.randint(-10,10)               
+                    b = random.randint(-10,10) 
+                    while b==0:
+                         b = random.randint(-10,10) 
+               else:
+                    b = random.randint(-10,10)               
                ops_char = operation(operator)
                ops_func = ops[ops_char]
 
+               result = ops_func(a, b)
+               print("Result: ",result)       
 
                for idx, player in enumerate(PlayerList):
-                    start_new_thread(play_round, (player.connection, player, a, b, ops_char, idx ))
-                    print("Sent question to ",player.nickname)
+                    if player.alive:
+                         Alive += 1
+                         start_new_thread(play_round, (player.connection, player, a, b, ops_char, idx ))
 
                print("Wait for all answers! ", end='')
-               while ROUND != MaxPlayer:
+               while ROUND != Alive:
                     time.sleep(0.5)
 
                fastest_timer = float('inf')
@@ -201,63 +205,60 @@ def Game_Server(port = 1123, host = ''):
 
                WinGame = False
                Bonus_Fastest = 0
-               # check answer
-               result = ops_func(a, b)
+               
 
-               print("Update Status!")
                # Update status
                for idx, player in enumerate(PlayerList):
-                    player.update_status(result, race_length)
-               
-                    if player.timer < fastest_timer and player.correct:
-                         fastest_timer = player.timer
-                         fastest_player_id = idx
+                    if player.alive:
+                         player.update_status(result, race_length)
+                    
+                         if player.timer < fastest_timer and player.correct:
+                              fastest_timer = player.timer
+                              fastest_player_id = idx
 
-                    if not player.correct:
-                         Bonus_Fastest += 1
+                         if player.correct == False:
+                              Bonus_Fastest += 1
 
-               if fastest_player_id != None:
+               if fastest_player_id != None and Bonus_Fastest>0:
                     PlayerList[fastest_player_id].position += Bonus_Fastest - 1
 
                Message = []
 
                for player in PlayerList:
                     player.info()
-
-                    if not player.alive:
-                         Message.append(-3)
-                    elif player.win:
-                         Message.append(100)
+                    if player.win:
                          WinGame = True
-                    else:
-                         Message.append(player.position)
+                    Message.append(player.position)
 
                print(Message)
                Message = [str(s) for s in Message]
                Message = "_".join(Message)
 
                for idx, player in enumerate(PlayerList):
-                    start_new_thread(update_status, (player.connection, Message) )
+                    if player.alive:
+                         start_new_thread(update_status, (player.connection, Message) )
+                         if player.position == -100:
+                              player.alive = False
 
                # Wait for all ready
                ROUND = 0
-               while ROUND != MaxPlayer:
+               while ROUND != Alive:
                     time.sleep(0.5)
 
                # Update alive
-               PlayerList[:] = [ player for player in PlayerList if player.alive]
+               # PlayerList[:] = [ player for player in PlayerList if player.alive]
 
                # notification -> update infor
                if WinGame:
+                    print("Game have the winner")
                     break # Newgame
-               elif len(PlayerList) == 0:
-                    break # Newgame
-               elif len(PlayerList) == 1:
+               if Alive == 0:
+                    print("You are all loser!")
                     break
 
           print("+++++++++++++++++++++++++++++++++")
           print("====== Game End - Next Race =====")
-
+     port += 1
      ServerSocket.close()
 
 if __name__ == '__main__':
