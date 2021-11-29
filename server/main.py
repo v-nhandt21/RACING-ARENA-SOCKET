@@ -45,8 +45,6 @@ def login_client(connection, ip, port):
 
           data = connection.recv(1020)
           nickname = data.decode('utf-8')
-          print("Receive Player nickname: ",nickname)
-
           regis = True
 
           if len(nickname) > 10:
@@ -66,6 +64,8 @@ def login_client(connection, ip, port):
                          regis = False
                          reply = "Nickname existed"
                          break
+          if regis == True:
+               print("Receive Player nickname: ",nickname)
           
           if regis == True:
                reply = 'ok_' + str(len(PlayerList))
@@ -219,7 +219,7 @@ def Game_Server(port = 1123, host = ''):
                          if player.correct == False:
                               Bonus_Fastest += 1
 
-               if fastest_player_id != None and Bonus_Fastest>0:
+               if fastest_player_id != None and Bonus_Fastest > 0:
                     PlayerList[fastest_player_id].position += Bonus_Fastest - 1
 
                Message = []

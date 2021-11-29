@@ -140,7 +140,7 @@ def Game_Client(port = 1123, host = '127.0.0.1'):
                     print("==============================")
                     print("Next round")
      
-     print("Good bye, loser!")
+     # print("Good bye, loser!")
      ClientSocket.close()
 
 if __name__ == '__main__':
