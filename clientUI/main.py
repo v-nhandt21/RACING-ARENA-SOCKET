@@ -41,6 +41,8 @@ def Game_Client(port = 1123, host = '127.0.0.1'):
      Race = pygame.Surface((width, height))
      Race = pygame.transform.scale(Race, (width, height))
      Race.fill('#75E6DA')
+     Background=pygame.image.load('background.png')
+     Background=pygame.transform.scale(Background,(width,height))
      carRed=pygame.image.load('car/car1.png')
      carRed=pygame.transform.scale(carRed,(80,40))
      blackCar=pygame.image.load('car/blackcar1.png')
@@ -62,8 +64,7 @@ def Game_Client(port = 1123, host = '127.0.0.1'):
      BrownCar=pygame.image.load('car/brownCar.png')
      BrownCar=pygame.transform.scale(BrownCar,(80,40))
 
-     street=pygame.image.load('street.png')
-     street=pygame.transform.scale(street,(width,(height - 100) / MaxPlayer))
+
 
 
 
@@ -81,7 +82,7 @@ def Game_Client(port = 1123, host = '127.0.0.1'):
      lastposition=[0 for i in range(MaxPlayer)]
 
      # nickname register
-     base_font = pygame.font.Font('Pixeltype.ttf', 32)
+     base_font = pygame.font.Font('Pixeltype.ttf', 40)
      user_text = ''
      input_rect = pygame.Rect(width / 2 - 100, height / 2 - 16, 200, 32)
      name_rect = pygame.Rect(50, height - 70, 200, 40)
@@ -372,7 +373,7 @@ def Game_Client(port = 1123, host = '127.0.0.1'):
 
           elif nickName:
 
-               screen.fill('#75E6DA')
+               screen.blit(Background,(0,0))
                screen.blit(Register, Register_rect)
 
                if(wait==True):
