@@ -136,7 +136,7 @@ def Game_Server(port = 1123, host = ''):
           print('Waitiing for a Connection..')
           ServerSocket.listen(2)
 
-          ServerSocket.setblocking(0)
+          # ServerSocket.setblocking(0)
 
           # Wait full player
           while True:
@@ -234,12 +234,10 @@ def Game_Server(port = 1123, host = ''):
                     else:
                          WinGame.append(0)
 
-               if sum(WinGame) == 1:
-                    WIN = True
-
                for player in PlayerList: 
-                    if player.win and WIN:
+                    if player.win and sum(WinGame) == 1:
                          player.position = 100
+                         WIN = True
                     Message.append(player.position)
 
                print(Message)
@@ -261,7 +259,7 @@ def Game_Server(port = 1123, host = ''):
                # PlayerList[:] = [ player for player in PlayerList if player.alive]
 
                # notification -> update infor
-               if WinGame:
+               if WIN:
                     print("Game have the winner")
                     break # Newgame
                if Alive == 0:
