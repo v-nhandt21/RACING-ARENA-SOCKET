@@ -363,14 +363,14 @@ def Game_Client(port = 1123, host = '127.0.0.1'):
                     answerUser_rect = answerUser.get_rect(midbottom=(width / 2, height - 20))
                     screen.blit(answerUser, answerUser_rect)
                     display_time()
-                    # if  int((pygame.time.get_ticks() / 1000)-starttime)>int(max_time):
-                    #      if answer=="":
-                    #           answer="-1000000"
-                    #      ClientSocket.send(str.encode(answer))
-                    #      waitAnswer = True
-                    #
-                    #      Quizz = False
-                    #      answer = ""
+                    if  int((pygame.time.get_ticks() / 1000)-starttime)>int(max_time):
+                         if answer=="":
+                              answer="-1000000"
+                         ClientSocket.send(str.encode(answer))
+                         waitAnswer = True
+
+                         Quizz = False
+                         answer = ""
                if winGame:
                     screen.blit(background,(0,0))
                     screen.blit(WinText,WinText_rect)
