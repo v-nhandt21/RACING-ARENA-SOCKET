@@ -70,13 +70,19 @@ def Game_Client(port = 1123, host = '127.0.0.1'):
 
      line = pygame.Surface((width, 10))
      line.fill('black')
+     road=pygame.image.load("road.jpg")
+     road=pygame.transform.scale(road,(width,20))
+     answerBackground=pygame.image.load("answerBackground.jpg")
+
+
+
 
      player = [carRed, blackCar, grayCar, carwhite, cargreen, blueCar, YellowCar, CyanCar, MagentaCar, BrownCar]
      playercolors = ['red', 'black', 'gray', 'white', 'green', 'blue', 'yellow', 'cyan', 'megenta', 'brown']
      #assgin rect for each player
      player_rect = []
      for i in range(MaxPlayer):
-          player_r = player[i].get_rect(midbottom=(50, (height - 100) - ((height - 100) / MaxPlayer) * i))
+          player_r = player[i].get_rect(midbottom=(50, (height - 115) - ((height - 115) / MaxPlayer) * i))
           player_rect.append(player_r)
      position = [1 for i in range(MaxPlayer)]
      lastposition=[0 for i in range(MaxPlayer)]
@@ -88,13 +94,13 @@ def Game_Client(port = 1123, host = '127.0.0.1'):
      name_rect = pygame.Rect(50, height - 70, 200, 40)
 
      # Register
-     Register = base_font.render("Choose your nickname.", False, 'Black')
+     Register = base_font.render("Choose your nickname.", False, (47,158,215))
      Register_rect = Register.get_rect(center=(width / 2, height / 2 - 50))
-     RegisterS = base_font.render("Registration Completed Successfully", False, 'Black')
+     RegisterS = base_font.render("Registration Completed Successfully", False, (47,158,215))
      RegisterS_rect = RegisterS.get_rect(center=(width / 2, height / 2 + 50))
-     Invalidchartext = base_font.render("Invalid character.", False, 'Black')
+     Invalidchartext = base_font.render("Invalid character.", False, (47,158,215))
      Invalidchartext_rect = Invalidchartext.get_rect(center=(width / 2, height / 2 + 50))
-     NameExistText = base_font.render("Nickname existed", False, 'Black')
+     NameExistText = base_font.render("Nickname existed", False, (47,158,215))
      NameExistText_rect = NameExistText.get_rect(center=(width / 2, height / 2 + 50))
      # name
 
@@ -166,6 +172,7 @@ def Game_Client(port = 1123, host = '127.0.0.1'):
                     # postion event
                     if winGame or loseGame:
                          if event.key==pygame.K_q:
+                              ClientSocket.send(str.encode("Out game"))
                               ClientSocket.close()
                               pygame.quit()
                               exit()
@@ -281,7 +288,10 @@ def Game_Client(port = 1123, host = '127.0.0.1'):
                starttime = int(pygame.time.get_ticks() / 1000)
 
           if gameActive:
-               screen.blit(bottom, (0, height - 100))
+               answerBackground=pygame.transform.scale(answerBackground,(width-150-(name_rect.right+50),100))
+               screen.blit(answerBackground, (name_rect.right+50, height - 100))
+               screen.blit(bottom,(width-150,height-100))
+
 
                screen.blit(AnswerE, AnswerE_rect)
                screen.blit(AnswerBox, AnswerBox_rect)
@@ -290,7 +300,8 @@ def Game_Client(port = 1123, host = '127.0.0.1'):
 
                for i in range(MaxPlayer):
 
-                    screen.blit(line, (0, (height - 100) - ((height - 100) / MaxPlayer) * i))
+                    screen.blit(road, (0, (height - 120) - ((height - 120) / MaxPlayer) * i))
+
 
                     if waitAnswer == False and Quizz==False :
                          if position[i]==-100:
@@ -322,6 +333,7 @@ def Game_Client(port = 1123, host = '127.0.0.1'):
 
                name_rect.w = name.get_width() + 20
                # colors background of player
+               screen.blit(line,(0,height-100))
                playerColorbottom = pygame.Rect(0, height - 90, name_rect.right + 50, 100)
                pygame.draw.rect(screen, playercolors[Color], playerColorbottom)
                # player name
