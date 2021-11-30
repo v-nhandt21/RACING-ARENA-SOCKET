@@ -136,6 +136,8 @@ def Game_Server(port = 1123, host = ''):
           print('Waitiing for a Connection..')
           ServerSocket.listen(2)
 
+          ServerSocket.setblocking(0)
+
           # Wait full player
           while True:
                Client, address = ServerSocket.accept()
@@ -203,7 +205,8 @@ def Game_Server(port = 1123, host = ''):
                fastest_timer = float('inf')
                fastest_player_id = None
 
-               WinGame = False
+               WinGame = []
+               WIN = False
                Bonus_Fastest = 0
                
 
@@ -227,7 +230,16 @@ def Game_Server(port = 1123, host = ''):
                for player in PlayerList:
                     player.info()
                     if player.win:
-                         WinGame = True
+                         WinGame.append(1)
+                    else:
+                         WinGame.append(0)
+
+               if sum(WinGame) == 1:
+                    WIN = True
+
+               for player in PlayerList: 
+                    if player.win and WIN:
+                         player.position = 100
                     Message.append(player.position)
 
                print(Message)
@@ -258,7 +270,7 @@ def Game_Server(port = 1123, host = ''):
 
           print("+++++++++++++++++++++++++++++++++")
           print("====== Game End - Next Race =====")
-     port += 1
+          port += 1
      ServerSocket.close()
 
 if __name__ == '__main__':

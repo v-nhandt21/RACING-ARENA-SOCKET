@@ -31,7 +31,7 @@ class Player:
                self.position += 1
                self.check3fail = 0
                if self.check_win(race):
-                    self.position = 100
+                    # self.position = 100
                     self.win = True
                self.correct = True
           else:
