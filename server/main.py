@@ -43,7 +43,7 @@ def login_client(connection, ip, port):
      while regis == False:
           reply = "something"
 
-          data = connection.recv(1020)
+          data = connection.recv(1020) # receive typed nickname and check
           nickname = data.decode('utf-8')
           regis = True
 
@@ -83,9 +83,9 @@ def play_round(connection, player, a, b, ops_char, idx):
      
      player.timer = time.time()
 
-     connection.sendall(str.encode(  str(a) + ops_char  + str(b)  ))
+     connection.sendall(str.encode(  str(a) + ops_char  + str(b)  )) #send question to all player
 
-     answer = connection.recv(1020).decode('utf-8')
+     answer = connection.recv(1020).decode('utf-8') #receive answers from player
 
      print(player.info)
 
@@ -142,8 +142,9 @@ def Game_Server(port = 1123, host = ''):
           while True:
                Client, address = ServerSocket.accept()
                print('Connected to: ' + address[0] + ':' + str(address[1]))
-
-               if ThreadCount < MaxPlayer:
+               
+               #create a thread for each player
+               if ThreadCount < MaxPlayer: 
                     ThreadCount += 1
                     print('Player Number: ' + str(ThreadCount))
                     start_new_thread(login_client, (Client, address[0], address[1] ))
@@ -165,6 +166,7 @@ def Game_Server(port = 1123, host = ''):
                race_length = input('Input length of the race again (3<race<26): ')
           race_length = int(race_length)
 
+          #start new game with race_length
           for idx, player in enumerate(PlayerList):
                start_new_thread(init_game, (player.connection,race_length))
 
@@ -179,12 +181,12 @@ def Game_Server(port = 1123, host = ''):
                Alive = 0
                ROUND = 0
                # Question generate:
-               a = random.randint(-10,10)
+               a = random.randint(-10000,10000)
                operator = random.randrange(5)
                if operation == 3 or operation == 4:
-                    b = random.randint(-10,10) 
+                    b = random.randint(-10000,10000) 
                     while b==0:
-                         b = random.randint(-10,10) 
+                         b = random.randint(-10000,10000) 
                else:
                     b = random.randint(-10,10)               
                ops_char = operation(operator)
@@ -192,7 +194,8 @@ def Game_Server(port = 1123, host = ''):
 
                result = ops_func(a, b)
                print("Result: ",result)       
-
+               
+               # Send next question for all ALIVE player
                for idx, player in enumerate(PlayerList):
                     if player.alive:
                          Alive += 1
@@ -244,6 +247,7 @@ def Game_Server(port = 1123, host = ''):
                Message = [str(s) for s in Message]
                Message = "_".join(Message)
 
+               #update position for all ALIVE player
                for idx, player in enumerate(PlayerList):
                     if player.alive:
                          start_new_thread(update_status, (player.connection, Message) )
